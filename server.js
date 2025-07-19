@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use('/api/devices', deviceRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Smart License API is running.');
+    res.send('Smart License API is running without a database connection.');
 });
 
 module.exports = app;

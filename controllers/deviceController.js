@@ -1,38 +1,45 @@
-const db = require('../models/Device');
+
 
 exports.registerDevice = (req, res) => {
     const { device_id } = req.body;
-    const now = new Date().toISOString();
-    const expire = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 hari
+    const expire = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); 
 
-    db.run(`INSERT OR IGNORE INTO devices(device_id, registered_at, expires_at, status) VALUES (?, ?, ?, ?)`,
-        [device_id, now, expire, 'active'],
-        function (err) {
-            if (err) return res.status(500).json({ message: err.message });
-            return res.json({ message: 'Device registered', expire });
-        });
+    if (!device_id) {
+        return res.status(400).json({ message: 'Device ID is required.' });
+    }
+
+    console.log(`[Dummy] Registering device: ${device_id}`);
+    return res.status(200).json({ message: 'Device registered (dummy)', expire, device_id });
 };
 
 exports.checkLicense = (req, res) => {
     const { device_id } = req.body;
-    db.get(`SELECT * FROM devices WHERE device_id = ?`, [device_id], (err, row) => {
-        if (err) return res.status(500).json({ message: err.message });
-        if (!row) return res.status(404).json({ message: 'Device not found' });
 
-        const now = new Date();
-        const expired = new Date(row.expires_at) < now;
-        return res.json({
-            device_id,
-            status: expired ? 'expired' : 'active',
-            expires_at: row.expires_at
-        });
+    if (!device_id) {
+        return res.status(400).json({ message: 'Device ID is required.' });
+    }
+
+
+    const now = new Date();
+    const hardcodedExpiresAt = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); 
+    const expired = new Date(hardcodedExpiresAt) < now; 
+
+    console.log(`[Dummy] Checking license for device: ${device_id}`);
+    return res.status(200).json({
+        device_id,
+        status: expired ? 'expired' : 'active', 
+        expires_at: hardcodedExpiresAt,
+        message: 'License check (dummy)'
     });
 };
 
 exports.deactivateDevice = (req, res) => {
     const { device_id } = req.body;
-    db.run(`UPDATE devices SET status = 'inactive' WHERE device_id = ?`, [device_id], function (err) {
-        if (err) return res.status(500).json({ message: err.message });
-        return res.json({ message: 'Device deactivated' });
-    });
+
+    if (!device_id) {
+        return res.status(400).json({ message: 'Device ID is required.' });
+    }
+
+    console.log(`[Dummy] Deactivating device: ${device_id}`);
+    return res.status(200).json({ message: 'Device deactivated (dummy)', device_id });
 };
